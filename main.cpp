@@ -76,7 +76,7 @@ int main() {
     // 初始化
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
-    InitSDL("qaqTaichi Knight", window, renderer);
+    InitSDL("Taichi Knight", window, renderer);
 
     // 程序没写完之前，所有乱七八糟的测试代码都往TEST函数里面塞吧，main干净一点
     TEST();
