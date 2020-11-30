@@ -41,6 +41,7 @@ void InitSDL(const char *Name, SDL_Window *&window, SDL_Renderer *&renderer) {
 }
 
 TK::Player player;
+vector<TK::Bullet> bullets;
 
 bool GameLoop(SDL_Renderer *renderer) {
     // 处理 系统事件（退出游戏） 和 用户事件（特殊操作）
@@ -63,7 +64,6 @@ bool GameLoop(SDL_Renderer *renderer) {
 
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     // 根据键盘操作来改变角色属性
-    // state[SDL_SCANCODE_...]
     if (state[SDL_SCANCODE_W] ) {
         player.x += player.v * cos(player.phi);
         player.y += -player.v * sin(player.phi);
@@ -74,13 +74,25 @@ bool GameLoop(SDL_Renderer *renderer) {
     }
     if (state[SDL_SCANCODE_A]) { player.phi += TK::Pi / 30; }
     if (state[SDL_SCANCODE_D]) { player.phi -= TK::Pi / 30; }
+    if (state[SDL_SCANCODE_SPACE] && !player.weapon.swing) {
+        bullets.push_back(TK::Bullet(player.x, player.y, player.v * 1.5, player.getphi()));
+        TK::setSwing(player.weapon);
+    }
+
+    for (int i = 0; i < bullets.size(); i++) {
+        bullets[i].updatePosition();
+        if (bullets[i].out()) bullets.erase(bullets.begin() + i);
+    }
 
     // 渲染显示内容
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
-    SDL_Rect rect = { (int)player.x - 16, (int)player.y - 16, 32, 32 };
-    SDL_RenderCopyEx(renderer, player.tex[1], NULL, &rect, (TK::Pi/2 - player.phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
+    TK::drawPlayer(renderer, player);
+
+    for (int i = 0; i < bullets.size(); i++) {
+        TK::drawBullet(renderer, bullets[i]);
+    }
 
     SDL_RenderPresent(renderer);
 
@@ -92,6 +104,7 @@ void TEST(SDL_Renderer *renderer) {
     TK::MidiStart();
     player.tex[0] = IMG_LoadTexture(renderer, "res/taichi.png");
     player.tex[1] = IMG_LoadTexture(renderer, "res/cursor.png");
+    player.tex[2] = IMG_LoadTexture(renderer, "res/taichi_cursor.png");
 }
 
 int main() {

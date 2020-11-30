@@ -10,11 +10,13 @@
 namespace TK {
     void drawHUD();
 
-    void drawPlayer(Player &p);
+    void drawPlayer(SDL_Renderer *r, Player &p);
 
-    void drawMonster(Monster &p);
+    void drawMonster(SDL_Renderer *r, Monster &p);
 
-    void drawBoss(Boss &p);
+    void drawBoss(SDL_Renderer *r, Boss &p);
+
+    void drawBullet(SDL_Renderer *r, Bullet &p);
 }
 
 #endif
