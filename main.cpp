@@ -1,5 +1,6 @@
 #define SDL_MAIN_HANDLED
 
+#include <cmath>
 #include <cstdio>
 #include <vector>
 #include <iostream>
@@ -39,6 +40,8 @@ void InitSDL(const char *Name, SDL_Window *&window, SDL_Renderer *&renderer) {
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 }
 
+TK::Player player;
+
 bool GameLoop(SDL_Renderer *renderer) {
     // 处理 系统事件（退出游戏） 和 用户事件（特殊操作）
     SDL_Event event;
@@ -61,15 +64,34 @@ bool GameLoop(SDL_Renderer *renderer) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     // 根据键盘操作来改变角色属性
     // state[SDL_SCANCODE_...]
+    if (state[SDL_SCANCODE_W] ) {
+        player.x += player.v * cos(player.phi);
+        player.y += -player.v * sin(player.phi);
+    }
+    if (state[SDL_SCANCODE_S]) {
+        player.x -= player.v * cos(player.phi);
+        player.y -= -player.v * sin(player.phi);
+    }
+    if (state[SDL_SCANCODE_A]) { player.phi += TK::Pi / 30; }
+    if (state[SDL_SCANCODE_D]) { player.phi -= TK::Pi / 30; }
 
     // 渲染显示内容
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
+
+    SDL_Rect rect = { (int)player.x - 16, (int)player.y - 16, 32, 32 };
+    SDL_RenderCopyEx(renderer, player.tex[1], NULL, &rect, (TK::Pi/2 - player.phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
+
+    SDL_RenderPresent(renderer);
 
     return true;
 }
 
-void TEST() {
-    TK::MidiInit("a.mid");
+void TEST(SDL_Renderer *renderer) {
+    TK::MidiInit("res/a.mid");
     TK::MidiStart();
+    player.tex[0] = IMG_LoadTexture(renderer, "res/taichi.png");
+    player.tex[1] = IMG_LoadTexture(renderer, "res/cursor.png");
 }
 
 int main() {
@@ -79,7 +101,7 @@ int main() {
     InitSDL("Taichi Knight", window, renderer);
 
     // 程序没写完之前，所有乱七八糟的测试代码都往TEST函数里面塞吧，main干净一点
-    TEST();
+    TEST(renderer);
 
     // 游戏循环
     while (GameLoop(renderer));

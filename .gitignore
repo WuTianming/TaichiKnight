@@ -1,6 +1,5 @@
 main
 makefile*
-*.mid
 obj/
 lib/
 

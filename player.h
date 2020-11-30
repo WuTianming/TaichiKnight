@@ -32,8 +32,8 @@ namespace TK {
         double x, y;    // 坐标，显示的时候再转换为int
 
         double v;       // 每帧移动的距离。帧率预计为60帧/秒
-        double phi;     // 指向角，phi=0指向正右，左键减，右键加
-                        // dx/dt = v * cos(phi), dy/dt = v * sin(phi)
+        double phi;     // 指向角，与极坐标的定义一致。phi=0指向正右，左键加，右键减
+                        // dx/dt = v * cos(phi), dy/dt = -v * sin(phi)，注意y的坐标轴是向下增加
 
         SDL_Texture *tex[10];
     };
