@@ -1,7 +1,7 @@
 #include "player.h"
 
 namespace TK {
-    Player::Player() : x(320), y(240), phi(Pi/2), v(5) {}
+    Player::Player() : x(320), y(240), phi(Pi/2), v(2.5) {}
     double Player::getphi() {
         int mx, my;
         SDL_GetMouseState(&mx, &my);
@@ -11,8 +11,9 @@ namespace TK {
         else return -acos(dx / dl);
     }
     
-    Bullet::Bullet(double x, double y, double v, double phi)
-        : x(x), y(y), v(v), phi(phi) {}
+    Bullet::Bullet(double x, double y, double v, double phi, SDL_Texture *t)
+        : x(x), y(y), v(v), phi(phi), tex(t) {}
+    Bullet::~Bullet() { fprintf(stderr, "del"); }
     void Bullet::updatePosition() { x += v * cos(phi); y -= v * sin(phi); }
     bool Bullet::out() {
         return (x < -20 || x > 660 || y < -20 || y > 500);

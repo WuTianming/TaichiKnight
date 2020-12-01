@@ -45,6 +45,7 @@ vector<TK::Bullet> bullets;
 
 bool GameLoop(SDL_Renderer *renderer) {
     // 处理 系统事件（退出游戏） 和 用户事件（特殊操作）
+    // static double kkk = 1.0;
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -55,6 +56,16 @@ bool GameLoop(SDL_Renderer *renderer) {
             case SDL_KEYDOWN:
                 if (event.key.keysym.sym == SDLK_ESCAPE)
                     return false;
+                /*
+                if (event.key.keysym.sym == SDLK_DOWN) {
+                    kkk *= 0.9;
+                    printf("k = %lf\n", kkk);
+                }
+                if (event.key.keysym.sym == SDLK_UP) {
+                    kkk *= 1.1;
+                    printf("k = %lf\n", kkk);
+                }
+                */
                 break;
             case SDL_USEREVENT:
                 // 激活特殊操作
@@ -72,16 +83,22 @@ bool GameLoop(SDL_Renderer *renderer) {
         player.x -= player.v * cos(player.phi);
         player.y -= -player.v * sin(player.phi);
     }
-    if (state[SDL_SCANCODE_A]) { player.phi += TK::Pi / 30; }
-    if (state[SDL_SCANCODE_D]) { player.phi -= TK::Pi / 30; }
+    if (state[SDL_SCANCODE_A]) { player.phi += TK::Pi / 60; }
+    if (state[SDL_SCANCODE_D]) { player.phi -= TK::Pi / 60; }
     if (state[SDL_SCANCODE_SPACE] && !player.weapon.swing) {
-        bullets.push_back(TK::Bullet(player.x, player.y, player.v * 1.5, player.getphi()));
+        bullets.emplace_back(
+                    player.x, player.y,
+                    player.v * 1.5,
+                    player.getphi(),
+                    player.tex[1]);
         TK::setSwing(player.weapon);
     }
 
-    for (int i = 0; i < bullets.size(); i++) {
-        bullets[i].updatePosition();
-        if (bullets[i].out()) bullets.erase(bullets.begin() + i);
+    for (auto i = bullets.begin(); i != bullets.end(); ++i)
+        i->updatePosition();
+    for (auto i = bullets.begin(); i != bullets.end(); ) {
+        if (i->out()) i = bullets.erase(i);
+        else ++i;
     }
 
     // 渲染显示内容
@@ -90,9 +107,8 @@ bool GameLoop(SDL_Renderer *renderer) {
 
     TK::drawPlayer(renderer, player);
 
-    for (int i = 0; i < bullets.size(); i++) {
+    for (int i = 0; i < bullets.size(); i++)
         TK::drawBullet(renderer, bullets[i]);
-    }
 
     SDL_RenderPresent(renderer);
 
@@ -103,7 +119,7 @@ void TEST(SDL_Renderer *renderer) {
     TK::MidiInit("res/a.mid");
     TK::MidiStart();
     player.tex[0] = IMG_LoadTexture(renderer, "res/taichi.png");
-    player.tex[1] = IMG_LoadTexture(renderer, "res/cursor.png");
+    player.tex[1] = IMG_LoadTexture(renderer, "res/bullet.png");
     player.tex[2] = IMG_LoadTexture(renderer, "res/taichi_cursor.png");
 }
 

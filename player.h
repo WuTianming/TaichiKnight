@@ -10,7 +10,7 @@ namespace TK {
     const double Pi = 3.1415926535897932384626;
 
     struct Bullet {
-        Bullet(double x = 0, double y = 0, double v = 0, double phi = 0);
+        Bullet(double x = 0, double y = 0, double v = 0, double phi = 0, SDL_Texture *t = NULL);
 
         void updatePosition();
         bool out();
@@ -25,9 +25,9 @@ namespace TK {
         Weapon();
 
         int delay;      // 连按射击的后摇（时间间隔，ms）
-        // 实现连击计时：射击一次之后，将swing状态置为1，并设置Timer。让Timer在delay结束后将swing置为0。swing期间不能发射子弹
+// 实现连击计时：射击一次之后，将swing状态置为1，并设置Timer。让Timer在delay结束后将swing置为0。swing期间不能发射子弹
         int damage;     // 单个子弹的射击伤害
-        double theta;      // 半张角
+        double theta;   // 半张角
 
         bool swing;
     };
