@@ -9,9 +9,11 @@ namespace TK {
     }
 
     void drawMonster(SDL_Renderer *r, Monster &p) {
+        ;
     }
 
     void drawBoss(SDL_Renderer *r, Boss &p){
+        ;
     }
 
     void drawBullet(SDL_Renderer *r, Bullet &p) {

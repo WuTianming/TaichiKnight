@@ -19,6 +19,12 @@
 
 using namespace std;
 
+double countFPS() {
+    static double timeElapsed = 0.00;
+    double tmp = timeElapsed; timeElapsed = SDL_GetTicks();
+    return 1000.00 / (timeElapsed - tmp);
+}
+
 void InitSDL(const char *Name, SDL_Window *&window, SDL_Renderer *&renderer) {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
 
@@ -43,9 +49,13 @@ void InitSDL(const char *Name, SDL_Window *&window, SDL_Renderer *&renderer) {
 TK::Player player;
 vector<TK::Bullet> bullets;
 
+template <class T>
+T &truncate(T &x, T Mn, T Mx) { if (x > Mx) x = Mx; if (x < Mn) x = Mn; return x; }
+
 bool GameLoop(SDL_Renderer *renderer) {
+    printf("%lf\n", countFPS());
+
     // 处理 系统事件（退出游戏） 和 用户事件（特殊操作）
-    // static double kkk = 1.0;
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -85,12 +95,16 @@ bool GameLoop(SDL_Renderer *renderer) {
     }
     if (state[SDL_SCANCODE_A]) { player.phi += TK::Pi / 60; }
     if (state[SDL_SCANCODE_D]) { player.phi -= TK::Pi / 60; }
+
+    truncate(player.x, 0.00, 640.00);
+    truncate(player.y, 0.00, 480.00);
+
     if (state[SDL_SCANCODE_SPACE] && !player.weapon.swing) {
         bullets.emplace_back(
-                    player.x, player.y,
-                    player.v * 1.5,
-                    player.getphi(),
-                    player.tex[1]);
+                player.x, player.y,
+                player.v * 1.5,
+                player.getphi(),
+                player.tex[1]);
         TK::setSwing(player.weapon);
     }
 
@@ -107,8 +121,8 @@ bool GameLoop(SDL_Renderer *renderer) {
 
     TK::drawPlayer(renderer, player);
 
-    for (int i = 0; i < bullets.size(); i++)
-        TK::drawBullet(renderer, bullets[i]);
+    for (auto i = bullets.begin(); i != bullets.end(); ++i)
+        TK::drawBullet(renderer, *i);
 
     SDL_RenderPresent(renderer);
 
