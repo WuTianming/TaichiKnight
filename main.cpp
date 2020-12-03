@@ -52,8 +52,30 @@ vector<TK::Bullet> bullets;
 template <class T>
 T &truncate(T &x, T Mn, T Mx) { if (x > Mx) x = Mx; if (x < Mn) x = Mn; return x; }
 
+void EndLoop(SDL_Renderer *renderer) {
+    SDL_Event event;
+    while (true) {
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+                case SDL_WINDOWEVENT_CLOSE:
+                case SDL_QUIT:
+                // case SDL_KEYDOWN:
+                    return;
+                    break;
+            }
+        }
+        SDL_RenderPresent(renderer);
+    }
+}
+
 bool GameLoop(SDL_Renderer *renderer) {
     printf("%lf\n", countFPS());
+
+    // 游戏结束？
+    if (player.hp <= 0) {
+        EndLoop(renderer);
+        return false;
+    }
 
     // 处理 系统事件（退出游戏） 和 用户事件（特殊操作）
     SDL_Event event;
@@ -66,16 +88,10 @@ bool GameLoop(SDL_Renderer *renderer) {
             case SDL_KEYDOWN:
                 if (event.key.keysym.sym == SDLK_ESCAPE)
                     return false;
-                /*
-                if (event.key.keysym.sym == SDLK_DOWN) {
-                    kkk *= 0.9;
-                    printf("k = %lf\n", kkk);
+                // experimental
+                if (event.key.keysym.sym == SDLK_f) {
+                    TK::magnify += 1;
                 }
-                if (event.key.keysym.sym == SDLK_UP) {
-                    kkk *= 1.1;
-                    printf("k = %lf\n", kkk);
-                }
-                */
                 break;
             case SDL_USEREVENT:
                 // 激活特殊操作
@@ -96,6 +112,9 @@ bool GameLoop(SDL_Renderer *renderer) {
     if (state[SDL_SCANCODE_A]) { player.phi += TK::Pi / 60; }
     if (state[SDL_SCANCODE_D]) { player.phi -= TK::Pi / 60; }
 
+    if (state[SDL_SCANCODE_DOWN])  { player.hp -= 2; }
+    if (state[SDL_SCANCODE_UP])    { player.hp += 2; }   // truncate!!
+
     truncate(player.x, 0.00, 640.00);
     truncate(player.y, 0.00, 480.00);
 
@@ -106,6 +125,16 @@ bool GameLoop(SDL_Renderer *renderer) {
                 player.getphi(),
                 player.tex[1]);
         TK::setSwing(player.weapon);
+    }
+    // experimental
+    if (state[SDL_SCANCODE_SPACE] && state[SDL_SCANCODE_LSHIFT] ) {
+        for (double phi = 0.00; phi <= 2 * TK::Pi; phi += 0.02) {
+            bullets.emplace_back(
+                    player.x, player.y,
+                    player.v * 3,
+                    phi,
+                    player.tex[1]);
+        }
     }
 
     for (auto i = bullets.begin(); i != bullets.end(); ++i)
@@ -124,6 +153,8 @@ bool GameLoop(SDL_Renderer *renderer) {
     for (auto i = bullets.begin(); i != bullets.end(); ++i)
         TK::drawBullet(renderer, *i);
 
+    TK::drawHUD(renderer, player);
+
     SDL_RenderPresent(renderer);
 
     return true;
@@ -135,6 +166,7 @@ void TEST(SDL_Renderer *renderer) {
     player.tex[0] = IMG_LoadTexture(renderer, "res/taichi.png");
     player.tex[1] = IMG_LoadTexture(renderer, "res/bullet.png");
     player.tex[2] = IMG_LoadTexture(renderer, "res/taichi_cursor.png");
+    // player.tex[2] = IMG_LoadTexture(renderer, "res/mbg.png");
 }
 
 int main() {

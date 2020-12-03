@@ -2,7 +2,7 @@
 
 // Player
 namespace TK {
-    Player::Player() : x(320), y(240), phi(Pi/2), v(2.5) {}
+    Player::Player() : hp(100), mp(0), x(320), y(240), phi(Pi/2), v(2.5) {}
 
     double Player::getphi() {
         int mx, my;
@@ -28,7 +28,7 @@ namespace TK {
 
 // Weapon
 namespace TK {
-    Weapon::Weapon() : delay(80), damage(20), theta(0), swing(false) {}
+    Weapon::Weapon() : delay(50), damage(20), theta(0), swing(false) {}
 
     void setSwing(Weapon &p) {
         p.swing = true;

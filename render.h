@@ -8,7 +8,10 @@
 #include "mon.h"
 
 namespace TK {
-    void drawHUD();
+    extern double magnify;
+    void mapMagnify(double mag);
+
+    void drawHUD(SDL_Renderer *r, Player &p);
 
     void drawPlayer(SDL_Renderer *r, Player &p);
 
