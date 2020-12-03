@@ -1,6 +1,9 @@
 # 混元太极功法
 （中国科学技术大学2020级计算机程序设计大作业）
 
+# DEMO
+[Link to demo, built with Emscripten.](https://wutianming.github.io/TaichiKnight/)
+
 弹幕射击游戏。
 
 ## 内容设定
