@@ -69,7 +69,7 @@ void EndLoop(SDL_Renderer *renderer) {
 }
 
 bool GameLoop(SDL_Renderer *renderer) {
-    printf("%lf\n", countFPS());
+    printf("%lf fps\n", countFPS());
 
     // 游戏结束？
     if (player.hp <= 0) {
