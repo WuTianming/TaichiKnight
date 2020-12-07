@@ -17,7 +17,17 @@
 #include "player.h"
 #include "mon.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 using namespace std;
+
+SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
+
+template <class T>
+T &truncate(T &x, T Mn, T Mx) { if (x > Mx) x = Mx; if (x < Mn) x = Mn; return x; }
 
 double countFPS() {
     static double timeElapsed = 0.00;
@@ -48,9 +58,6 @@ void InitSDL(const char *Name, SDL_Window *&window, SDL_Renderer *&renderer) {
 
 TK::Player player;
 vector<TK::Bullet> bullets;
-
-template <class T>
-T &truncate(T &x, T Mn, T Mx) { if (x > Mx) x = Mx; if (x < Mn) x = Mn; return x; }
 
 void EndLoop(SDL_Renderer *renderer) {
     SDL_Event event;
@@ -160,6 +167,10 @@ bool GameLoop(SDL_Renderer *renderer) {
     return true;
 }
 
+void GameLoopWrapper() {
+    GameLoop(renderer);
+}
+
 void TEST(SDL_Renderer *renderer) {
     TK::MidiInit("res/a.mid");
     TK::MidiStart();
@@ -171,15 +182,17 @@ void TEST(SDL_Renderer *renderer) {
 
 int main() {
     // 初始化
-    SDL_Window *window = NULL;
-    SDL_Renderer *renderer = NULL;
     InitSDL("Taichi Knight", window, renderer);
 
     // 程序没写完之前，所有乱七八糟的测试代码都往TEST函数里面塞吧，main干净一点
     TEST(renderer);
 
     // 游戏循环
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(GameLoopWrapper, 0, 1);
+#else
     while (GameLoop(renderer));
+#endif
 
     // 退出游戏
     SDL_DestroyWindow(window);
