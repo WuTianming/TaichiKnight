@@ -1,6 +1,5 @@
 .tmp.mid
 main
-makefile*
 obj/
 lib/
 
