@@ -24,6 +24,18 @@ namespace TK {
         SDL_Texture *tex;
     };
 
+    struct mBullet {
+        mBullet(double x = 0, double y = 0, double v = 0, double phi = 0, SDL_Texture *t = NULL);
+
+        void updatePosition();
+        bool out();
+
+        double x, y, v;
+        double phi;
+
+        SDL_Texture *tex;
+    };
+
     struct Weapon {
         Weapon();
 

@@ -44,8 +44,8 @@ namespace TK {
     void MidiStart()  {
         int starttime = SDL_GetTicks() + 50;
         int tcnt = BGM.getTrackCount();
-        for (int track = 0; track < tcnt; track++) {
-            // int track = tcnt - 7;
+        // for (int track = 0; track < tcnt; track++) {
+            int track = tcnt - 7;
             // int track = 1;
             double prevt = -1.00;
             int cntr = 1;
@@ -61,7 +61,7 @@ namespace TK {
                     } else ++cntr;
                 }
             }
-        }
+        // }
         while (SDL_GetTicks() < starttime) SDL_Delay(1);
         SDL_Delay(1250);
         Mix_PlayChannel(0, BGM_Play, 0);

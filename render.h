@@ -5,7 +5,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL2_gfxPrimitives.h>
+#include "SDL2_gfxPrimitives.h"
 
 #include "player.h"
 #include "mon.h"
@@ -30,6 +30,8 @@ namespace TK {
     void drawBoss(SDL_Renderer *r, Boss &p);
 
     void drawBullet(SDL_Renderer *r, Bullet &p);
+
+    void drawmBullet(SDL_Renderer *r, mBullet &p);
 }
 
 #endif

@@ -99,15 +99,29 @@ namespace TK {
     }
 
     void drawMonster(SDL_Renderer *r, Monster &p) {
-        ;
+        SDL_Rect rect = {
+            (int)(p.x - 32 - bx), (int)(p.y - 32 - by), int(64), int(64) };
+        SDL_RenderCopy(r, p.tex, NULL, &rect);
     }
 
     void drawBoss(SDL_Renderer *r, Boss &p){
-        ;
+        SDL_Rect rect = {
+            (int)(p.x - 32 - bx), (int)(p.y - 32 - by), int(64), int(64) };
+        SDL_RenderCopy(r, p.tex, NULL, &rect);
     }
 
     void drawBullet(SDL_Renderer *r, Bullet &p) {
-        SDL_Rect rect = { (int)(p.x-7-bx), (int)(p.y-7-by), int(14), int(14) };
+        SDL_Rect rect = { (int)(p.x-7-bx), (int)(p.y-7-by), 14, 14 };
+        SDL_RenderCopyEx(r, p.tex,
+                NULL, &rect,
+                (TK::Pi/2 - p.phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
+
+        // SDL_SetRenderDrawColor(r, 255, 0, 0, 255);
+        // SDL_RenderDrawRect(r, &rect);
+    }
+
+    void drawmBullet(SDL_Renderer *r, mBullet &p) {
+        SDL_Rect rect = { (int)(p.x-20-bx), (int)(p.y-20-by), 40, 40 };
         SDL_RenderCopyEx(r, p.tex,
                 NULL, &rect,
                 (TK::Pi/2 - p.phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);

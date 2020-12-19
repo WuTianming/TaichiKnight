@@ -24,6 +24,17 @@ namespace TK {
 
     bool Bullet::out() { return (x < -20 || x > MWIDTH + 20 || y < -20 || y > MHEIGHT + 20); }
 }
+//mBullet
+namespace TK {
+    mBullet::mBullet(double x, double y, double v, double phi, SDL_Texture *t)
+        : x(x), y(y), v(v), phi(phi), tex(t) {}
+
+    void mBullet::updatePosition() {
+        x += v * cos(phi); y -= v * sin(phi);
+    }
+
+    bool mBullet::out() { return (x < -20 || x > 660 || y < -20 || y > 500); }
+}
 
 // Weapon
 namespace TK {
