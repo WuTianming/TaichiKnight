@@ -20,6 +20,8 @@ namespace TK {
     void drawBoss(SDL_Renderer *r, Boss &p);
 
     void drawBullet(SDL_Renderer *r, Bullet &p);
+
+    void drawmBullet(SDL_Renderer *r, mBullet &p);
 }
 
 #endif

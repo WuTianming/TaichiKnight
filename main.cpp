@@ -4,7 +4,9 @@
 #include <cstdio>
 #include <vector>
 #include <iostream>
+#include <time.h>
 #include <algorithm>
+#include <stdlib.h>
 
 #include "MidiFile.h"
 
@@ -47,7 +49,10 @@ void InitSDL(const char *Name, SDL_Window *&window, SDL_Renderer *&renderer) {
 }
 
 TK::Player player;
+vector<TK::Monster> monster;
+vector<TK::Boss> boss;
 vector<TK::Bullet> bullets;
+vector<TK::mBullet> mbullets;
 
 template <class T>
 T &truncate(T &x, T Mn, T Mx) { if (x > Mx) x = Mx; if (x < Mn) x = Mn; return x; }
@@ -67,9 +72,11 @@ void EndLoop(SDL_Renderer *renderer) {
         SDL_RenderPresent(renderer);
     }
 }
-
+int fm,km,fb,kb,ff=1;
+int monstern,monsters;
+int t;
 bool GameLoop(SDL_Renderer *renderer) {
-    printf("%lf fps\n", countFPS());
+    //printf("%lf fps\n", countFPS());
 
     // 游戏结束？
     if (player.hp <= 0) {
@@ -101,9 +108,25 @@ bool GameLoop(SDL_Renderer *renderer) {
 
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     // 根据键盘操作来改变角色属性
+    //state[SDL_SCANCODE_B] && 
+    if(ff==1){
+        ff=0;
+        TK::Boss New(320,240,2.5,TK::Pi/2,IMG_LoadTexture(renderer, "res/shiteater.png")); 
+        boss.push_back(New);
+        boss.begin()->hp=50;
+    }//增加state[SDL_SCANCODE_M]
+    if(monstern<=1){
+        //printf("Yes\n");
+        TK::Monster New(boss.begin()->x,boss.begin()->y,2.5,TK::Pi/2,IMG_LoadTexture(renderer, "res/caixukun.png")); 
+        monster.push_back(New);
+        monster.push_back(New);
+        monster.push_back(New);
+        monstern+=3;
+    }//增加monster
     if (state[SDL_SCANCODE_W] ) {
         player.x += player.v * cos(player.phi);
-        player.y += -player.v * sin(player.phi);
+    
+       player.y += -player.v * sin(player.phi);
     }
     if (state[SDL_SCANCODE_S]) {
         player.x -= player.v * cos(player.phi);
@@ -136,11 +159,30 @@ bool GameLoop(SDL_Renderer *renderer) {
                     player.tex[1]);
         }
     }
+    printf("%d\n",monstern);
+    if ((SDL_GetTicks()-t)>=8000) {
+        t=SDL_GetTicks();
+        for (double phi = 0.00; phi <= 2 * TK::Pi; phi += 1) {
+            int x=boss.begin()->x;
+            int y=boss.begin()->y;
+            mbullets.emplace_back(
+                    x, y,
+                    0.5,
+                    phi,
+                    player.tex[4]);
+        }
+    }
 
     for (auto i = bullets.begin(); i != bullets.end(); ++i)
         i->updatePosition();
     for (auto i = bullets.begin(); i != bullets.end(); ) {
         if (i->out()) i = bullets.erase(i);
+        else ++i;
+    }
+    for (auto i = mbullets.begin(); i != mbullets.end(); ++i)
+        i->updatePosition();
+    for (auto i = mbullets.begin(); i != mbullets.end(); ) {
+        if (i->out()) i = mbullets.erase(i);
         else ++i;
     }
 
@@ -150,8 +192,109 @@ bool GameLoop(SDL_Renderer *renderer) {
 
     TK::drawPlayer(renderer, player);
 
+    //monster&boss 's move
+    for (auto i = monster.begin(); i != monster.end(); ++i){
+        if(fm>0){
+            fm--;
+            i->updatePosition(km);
+        }
+        else {
+            int monster_move=rand()%6;
+            if(monster_move>=0&&monster_move<=3){
+                fm=32;
+                km=monster_move;
+            }
+            i->updatePosition(monster_move);
+        }
+        int x=i->x;
+        int y=i->y;
+        if(x < -20 || x > 660 || y < -20 || y > 500){
+            fm=48;
+        }
+        if(x<-20){
+            km=6;
+        }
+        if(x>660){
+            km=7; 
+        }
+        if(y<-20){
+            km=8;
+        }
+        if(y>500){
+            km=9;
+        }
+    }
+
+    for (auto i = boss.begin(); i != boss.end(); i++) {
+        if(fb>0){
+            fb--;
+            i->updatePosition(kb);
+        }
+        else {
+            int boss_move=rand()%6;
+            if(boss_move>=0&&boss_move<=3){
+                fb=32;
+                kb=boss_move;
+            }
+            i->updatePosition(boss_move);
+        }
+        int x=i->x;
+        int y=i->y;
+        if(x < -20 || x > 660 || y < -20 || y > 500)fb=48;
+        if(x<-20){
+            kb=6;
+        }
+        if(x>660){
+            kb=7;
+        }
+        if(y<-20){
+            kb=8;
+        }
+        if(y>500){
+            kb=9;
+        }
+    }
+
+    /*for (auto i = monster.begin(); i != monster.end(); ) {
+        if (i->out()) i = monster.erase(i);
+        else ++i;
+    }
+    for (auto i = boss.begin(); i != boss.end(); ) {
+        if (i->out()) i = boss.erase(i);
+        else ++i;
+    }*/
+
+    //判断moster&boss是否被子弹击中
+    for(auto j = bullets.begin(); j != bullets.end(); j++){
+        for (auto i = monster.begin(); i != monster.end();) {
+        if (abs((j->x)-(i->x))<=7&&abs((j->y)-(i->y))<=7) {i = monster.erase(i);monstern--;}
+        else ++i;
+        }
+    }
+    if(!boss.empty() && boss.begin()->hp>0)
+    for(auto j = bullets.begin(); j != bullets.end();){
+        auto i = boss.begin();
+        if (abs((j->x)-(i->x))<=10&&abs((j->y)-(i->y))<=10){
+            j = bullets.erase(j);
+            i->hp--;
+            printf("hp=%d\n",i->hp);
+            if(i->hp<=0){
+                i = boss.erase(i);
+                break;
+            }
+        }
+        else j++;
+    }
+    
+    //画出：子弹 怪物 boss
+    for (auto i = monster.begin(); i != monster.end(); ++i)
+        TK::drawMonster(renderer, *i);
+    for (auto i = boss.begin(); i != boss.end(); ++i)
+        TK::drawBoss(renderer, *i);
     for (auto i = bullets.begin(); i != bullets.end(); ++i)
         TK::drawBullet(renderer, *i);
+    for (auto i = mbullets.begin(); i != mbullets.end(); ++i)
+        TK::drawmBullet(renderer, *i);
 
     TK::drawHUD(renderer, player);
 
@@ -166,10 +309,14 @@ void TEST(SDL_Renderer *renderer) {
     player.tex[0] = IMG_LoadTexture(renderer, "res/taichi.png");
     player.tex[1] = IMG_LoadTexture(renderer, "res/bullet.png");
     player.tex[2] = IMG_LoadTexture(renderer, "res/taichi_cursor.png");
+    player.tex[4] = IMG_LoadTexture(renderer, "res/basketball.png");
+    //monster.tex[0]=IMG_LoadTexture(renderer, "res/taichi.png");
+    //monster.tex[2] = IMG_LoadTexture(renderer, "res/taichi_cursor.png");
     // player.tex[2] = IMG_LoadTexture(renderer, "res/mbg.png");
 }
 
 int main() {
+    srand(time(0));
     // 初始化
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
