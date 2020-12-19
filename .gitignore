@@ -3,6 +3,7 @@ runtime/
 main
 obj/
 lib/
+*.vim
 
 # macOS specific
 .DS_Store
