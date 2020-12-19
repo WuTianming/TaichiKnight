@@ -32,7 +32,40 @@ namespace TK {
         BGM_Play = Mix_LoadWAV(".tmp.mid");
     }
 
-    void MidiStart()  { Mix_PlayChannel(0, BGM_Play, 0); }
+    Uint32 callback_beat(Uint32 interval, void *param) {
+        int id = reinterpret_cast<long long>(param);
+        // fprintf(stdout, "beat %u as multiplied %d\n", SDL_GetTicks(), id);
+        SDL_Event event;
+        event.type = SDL_USEREVENT;
+        SDL_PushEvent(&event);
+        return 0;
+    }
+
+    void MidiStart()  {
+        int starttime = SDL_GetTicks() + 50;
+        int tcnt = BGM.getTrackCount();
+        for (int track = 0; track < tcnt; track++) {
+            // int track = tcnt - 7;
+            // int track = 1;
+            double prevt = -1.00;
+            int cntr = 1;
+            for (int event = 0; event < BGM[track].size(); event++) {
+                if (BGM[track][event].isNoteOn()) {
+                    // printf("%lf\n", midifile[track][event].seconds);
+                    double t = BGM[track][event].seconds;
+                    if (t - prevt > 0.002) {
+                        printf("add timer t=%lf, tick=%u, start=%u\n", t, SDL_GetTicks(), starttime);
+                        SDL_AddTimer(t * 1000.00 - (SDL_GetTicks() - starttime), callback_beat, reinterpret_cast<void *>(cntr));
+                        cntr = 1;
+                        prevt = t;
+                    } else ++cntr;
+                }
+            }
+        }
+        while (SDL_GetTicks() < starttime) SDL_Delay(1);
+        SDL_Delay(1250);
+        Mix_PlayChannel(0, BGM_Play, 0);
+    }
     // !!! 由于SDL的bug，Pause之后并不能Resume
     void MidiPause()  { Mix_Pause(0); }
     void MidiResume() { Mix_Resume(0); }

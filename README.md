@@ -29,3 +29,15 @@
 - render.h render.cpp 显示模块，负责将各种struct存储的信息转化为屏幕图像，还负责绘制环境
 - player.h player.cpp 把玩家包装成struct
 - mon.h mon.cpp 把怪物包装成struct
+
+## TODO
+
+- [ ] mp 相关操作
+
+- [x] 地图视角
+
+- [ ] 音频分析
+
+- [ ] 写怪
+
+- [ ] 开始界面，结束界面，包装循环

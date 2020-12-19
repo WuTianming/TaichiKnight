@@ -2,6 +2,9 @@
 #define PLAYER_H
 
 #include <cmath>
+#include <vector>
+
+using namespace std;
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -27,13 +30,18 @@ namespace TK {
         int delay;      // 连按射击的后摇（时间间隔，ms）
 // 实现连击计时：射击一次之后，将swing状态置为1，并设置Timer。让Timer在delay结束后将swing置为0。swing期间不能发射子弹
         int damage;     // 单个子弹的射击伤害
-        double theta;   // 半张角
+        int theta;      // 半张角，以10度为单位
 
         bool swing;
     };
 
-    void setSwing(Weapon &p);
+    void setSwing(Weapon &p, Uint32 delay);
     Uint32 cancelSwing(Uint32 interval, void *weapon);
+
+    struct Buff {
+        Uint32 endtick;
+        int texID;
+    };
 
     struct Player {
         Player();
@@ -49,6 +57,7 @@ namespace TK {
         double phi;     // 指向角，与极坐标的定义一致。phi=0指向正右，左键加，右键减
                         // dx/dt = v * cos(phi), dy/dt = -v * sin(phi)，注意y的坐标轴是向下增加
 
+        vector<Buff> buffs;
         Weapon weapon;
 
         SDL_Texture *tex[10];

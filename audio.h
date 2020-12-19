@@ -16,9 +16,6 @@ namespace TK {
     void MidiPause();
     void MidiResume();
     int MidiPlaying();
-
-    // 跟踪
-    void MidiTrack(void);
 }
 
 #endif
