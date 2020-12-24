@@ -31,6 +31,8 @@ namespace TK {
     void drawBullet(SDL_Renderer *r, Bullet &p);
 
     void drawmBullet(SDL_Renderer *r, mBullet &p);
+    
+    void drawMonsterBullet(SDL_Renderer *r, Monster::Bullet &p);
 }
 
 #endif
