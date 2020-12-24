@@ -11,15 +11,14 @@
 #include "mon.h"
 
 namespace TK {
-    extern double magnify;
     extern const int MWIDTH, MHEIGHT, WWIDTH, WHEIGHT;
     extern SDL_Texture *background;
+    extern SDL_Texture *mainmenu[10];
     extern int bx, by;          // frame starting point
 
     template <class T>
-    T &truncate(T &x, T Mn, T Mx) { if (x > Mx) x = Mx; if (x < Mn) x = Mn; return x; }
-
-    void mapMagnify(double mag);
+    T &truncate(T &x, T Mn, T Mx)
+    { if (x > Mx) x = Mx; if (x < Mn) x = Mn; return x; }
 
     void drawHUD(SDL_Renderer *r, Player &p);
 

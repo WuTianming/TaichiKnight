@@ -8,10 +8,13 @@ namespace TK {
 
     extern smf::MidiFile    BGM;
     extern Mix_Chunk        *BGM_Play;
+    extern double           BPM;
+    extern int              run;
 
     // 加载背景音乐midi文件
     void MidiInit(const char *);
 
+    void countDown3SecsWrapper(const char *filename);
     void MidiStart();
     void MidiPause();
     void MidiResume();

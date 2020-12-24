@@ -1,9 +1,9 @@
 #include "render.h"
 
 namespace TK {
-    double magnify = 1.00;
     const int MWIDTH = 2300 / 2, MHEIGHT = 1475 / 2, WWIDTH = 640, WHEIGHT = 480;
     SDL_Texture *background;
+    SDL_Texture *mainmenu[10];
     int bx, by;
 
     void drawHUD(SDL_Renderer *r, Player &p) {
@@ -26,7 +26,10 @@ namespace TK {
         SDL_RenderFillRect(r, &rect);
         rect.y = 125 - p.mp / 4;      // max = 500
         rect.h = p.mp / 4;
-        SDL_SetRenderDrawColor(r, 0, 0, 255, 255);
+        if (p.mp < 500)
+            SDL_SetRenderDrawColor(r, 0, 0, 255, 255);
+        else
+            SDL_SetRenderDrawColor(r, 0xff, 0x8a, 0x0c, 0xff);
         SDL_RenderFillRect(r, &rect);
         rect.h = 125, rect.y = 0;
         SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
@@ -78,7 +81,8 @@ namespace TK {
                 //               AABBGGRR
                 color = 0x4f898aff
                     + ((int)((1-ksi)*0xaf) << 24)       // alpha
-                    + ((int)((1-ksi)*0x83) << 16);      // blue, will overflow to create orange
+                    + ((int)((1-ksi)*0x83) << 16);      // blue
+                // will overflow to create orange
                 // end color = 0xff0c8aff, orange
             } else {
                 ksi = -drawR / 40.00;
