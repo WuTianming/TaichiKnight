@@ -27,8 +27,24 @@ namespace TK {
         double v;       
         double phi;     
 
+        int fm=0;
+        int km=0;
 
         SDL_Texture *tex;
+        SDL_Texture *btex;
+
+        struct Bullet {
+        Bullet(double x = 0, double y = 0, double v = 0, double phi = 0, SDL_Texture *t = NULL);
+        void updatePosition();
+        bool out();
+
+        double x, y, v;
+        double phi;
+
+        SDL_Texture *tex;
+        };
+
+        vector<TK::Monster::Bullet> bullets;
         // 属性
     };
 

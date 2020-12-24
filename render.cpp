@@ -2,7 +2,7 @@
 
 namespace TK {
     double magnify = 1.00;
-    const int MWIDTH = 2300 / 2, MHEIGHT = 1475 / 2, WWIDTH = 640, WHEIGHT = 480;
+    const int MWIDTH = 2300 / 2, MHEIGHT = 1475 / 2, WWIDTH = MWIDTH, WHEIGHT = MHEIGHT;
     SDL_Texture *background;
     int bx, by;
 
@@ -116,18 +116,23 @@ namespace TK {
                 NULL, &rect,
                 (TK::Pi/2 - p.phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
 
-        // SDL_SetRenderDrawColor(r, 255, 0, 0, 255);
-        // SDL_RenderDrawRect(r, &rect);
     }
 
     void drawmBullet(SDL_Renderer *r, mBullet &p) {
-        SDL_Rect rect = { (int)(p.x-20-bx), (int)(p.y-20-by), 40, 40 };
+        SDL_Rect rect = { (int)(p.x-12-bx), (int)(p.y-12-by), 24, 24 };
         SDL_RenderCopyEx(r, p.tex,
                 NULL, &rect,
                 (TK::Pi/2 - p.phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
 
-        // SDL_SetRenderDrawColor(r, 255, 0, 0, 255);
-        // SDL_RenderDrawRect(r, &rect);
+    }
+
+
+    void drawMonsterBullet(SDL_Renderer *r, Monster::Bullet &p) {
+        SDL_Rect rect = { (int)(p.x-50-bx), (int)(p.y-50-by), 100, 100 };
+        SDL_RenderCopyEx(r, p.tex,
+                NULL, &rect,
+                (TK::Pi/2 - p.phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
+
     }
 }
 

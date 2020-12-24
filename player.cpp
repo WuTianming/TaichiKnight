@@ -32,10 +32,18 @@ namespace TK {
     void mBullet::updatePosition() {
         x += v * cos(phi); y -= v * sin(phi);
     }
-
-    bool mBullet::out() { return (x < -20 || x > 660 || y < -20 || y > 500); }
+    bool mBullet::out() { return (x < -20 || x > 20+TK::MWIDTH || y < -20 || y > 20+TK::MHEIGHT); }
 }
+//monster's bullet
+namespace TK {
+    Monster::Bullet::Bullet(double x, double y, double v, double phi, SDL_Texture *t)
+        : x(x), y(y), v(v), phi(phi), tex(t) {}
 
+    void Monster::Bullet::updatePosition() {
+        x += v * cos(phi); y -= v * sin(phi);
+    }
+    bool Monster::Bullet::out() { return (x < -20 || x > 20+TK::MWIDTH || y < -20 || y > 20+TK::MHEIGHT); }
+}
 // Weapon
 namespace TK {
     Weapon::Weapon() : delay(70), damage(20), theta(0), swing(false) {}
