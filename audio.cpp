@@ -77,7 +77,7 @@ namespace TK {
         }*/
         Length = 0.00;
         for (int tr = 0; tr < tcnt; tr++) {
-            Length = max(Length, BGM[tr].back().seconds);
+            if (BGM[tr].size()) Length = max(Length, BGM[tr].back().seconds);
         }
         printf("bpm=%f\n", BPM);
         for (int t = 8 * BPM; t / 1000.00 <= Length; t += 8 * BPM) {

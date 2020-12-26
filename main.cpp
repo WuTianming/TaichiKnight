@@ -181,6 +181,7 @@ bool EndLoop() {
     SDL_RenderPresent(renderer);
     return true;
 }
+
 int fb,kb,ff=1;
 int monstern,monsters;
 int t;
@@ -270,7 +271,7 @@ bool GameLoop() {
         monster.back().fm=0;
         monster.back().km=0;
         monster.back().tex=IMG_LoadTexture(renderer, "res/pic/caixukun.png");
-        monster.back().btex=IMG_LoadTexture(renderer, "res/pic/basketball.png");
+        monster.back().btex=player.tex[7];
         monster.push_back(New);
         monster.back().fm=0;
         monster.back().km=0;

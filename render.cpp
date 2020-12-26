@@ -49,8 +49,7 @@ namespace TK {
         // b: Begin value
         // c: total Change in value
         // d: total motion Duration
-        double ts = t * t;
-        double tc = ts * t;
+        double ts = t * t; double tc = ts * t;
         return b+c*(2*ts*ts + 2*tc + (-3)*ts);
     }
 
@@ -129,7 +128,6 @@ namespace TK {
                 (TK::Pi/2 - p.phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
 
     }
-
 
     void drawMonsterBullet(SDL_Renderer *r, Monster::Bullet &p) {
         SDL_Rect rect = { (int)(p.x-50-bx), (int)(p.y-50-by), 100, 100 };
