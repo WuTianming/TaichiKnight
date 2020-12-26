@@ -115,7 +115,7 @@ struct Button {
     }
 } buttons[3];
 
-bool StartMenu() {
+int StartMenu() {
     bool GameLoop(void);
 
     SDL_Event event;
@@ -150,7 +150,8 @@ bool StartMenu() {
             if (isDown && mflag == 3) {
                 if (i == 0) {
                     TK::countDown3SecsWrapper("res/midi/Rydeen.mid");
-                    while (GameLoop());
+                    // while (GameLoop());
+                    return 2;
                     TK::MidiPause();
                 } else if (i == 1) {
                 } else if (i == 2) {
@@ -164,6 +165,46 @@ bool StartMenu() {
 
     SDL_RenderPresent(renderer);
     return true;
+}
+
+void StartMenuWrapper() {
+    bool GameLoop(void);
+    static int State = 1;
+    int t = false;
+    switch (State) {
+        case 1:
+            t = StartMenu();
+            if (t == 2) {
+                State = 2;
+            } else if (t == 1) {
+                ;
+            } else if (t == 0) {
+                ExitSDL();
+            }
+            break;
+        case 2:
+            t = GameLoop();
+            if (!t) {
+                TK::MidiPause();
+                State = 0;
+            }
+            break;
+        case 0:
+            SDL_Event event;
+            while (SDL_PollEvent(&event)) {
+                switch (event.type) {
+                    case SDL_WINDOWEVENT_CLOSE:
+                    case SDL_QUIT:
+                    case SDL_KEYDOWN:
+                        State = 1;
+                        return;
+                        break;
+                }
+            }
+            SDL_RenderCopy(renderer, TK::mainmenu[7], NULL, NULL);
+            SDL_RenderPresent(renderer);
+            break;
+    }
 }
 
 bool EndLoop() {
@@ -193,7 +234,7 @@ bool GameLoop() {
 
     // 游戏结束？
     if (player.hp <= 0) {
-        while (EndLoop());
+        // while (EndLoop());
         return false;
     }
     // if (EndLoop(renderer)) return true;
@@ -330,13 +371,13 @@ bool GameLoop() {
         t=SDL_GetTicks();
         for(auto i=monster.begin();i!=monster.end();i++){
             for (double phi = 0.00; phi <= 2 * TK::Pi; phi += 1) {
-            int x=i->x;
-            int y=i->y;
-            i->bullets.emplace_back(
-                    x, y,
-                    2.5,
-                    phi,
-                    i->btex);
+                int x=i->x;
+                int y=i->y;
+                i->bullets.emplace_back(
+                        x, y,
+                        2.5,
+                        phi,
+                        i->btex);
             }
         }
         for (double phi = 0.00; phi <= 2 * TK::Pi; phi += 0.2) {
@@ -464,7 +505,7 @@ bool GameLoop() {
             kb=9;
         }
     }
-    
+
     //玩家是否被击中
     for(auto j = mbullets.begin(); j != mbullets.end();){
         if (abs((j->x)-(player.x))<=10&&abs((j->y)-(player.y))<=10) {j = mbullets.erase(j);player.hp-=20;}
@@ -483,7 +524,7 @@ bool GameLoop() {
             else ++i;
         }
     }
-    
+
     if(!boss.empty() && boss.begin()->hp>0)
         for(auto j = bullets.begin(); j != bullets.end();){
             auto i = boss.begin();
@@ -498,13 +539,13 @@ bool GameLoop() {
             }
             else j++;
         }
-    
+
 
     //画出：子弹 怪物 boss
     for (auto i = monster.begin(); i != monster.end(); ++i){
         TK::drawMonster(renderer, *i);
     }
-        
+
     for (auto i = boss.begin(); i != boss.end(); ++i)
         TK::drawBoss(renderer, *i);
     for (auto i = bullets.begin(); i != bullets.end(); ++i)
@@ -516,12 +557,12 @@ bool GameLoop() {
             TK::drawMonsterBullet(renderer, *j);
         }
     }
-    
+
 
     TK::drawHUD(renderer, player);
 
     SDL_RenderPresent(renderer);
-    
+
     return true;
 }
 
@@ -564,7 +605,12 @@ int main() {
 
 
 
-    while (StartMenu());
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(StartMenuWrapper, 0, 1);
+#else
+    // while (StartMenu());
+    while (1) StartMenuWrapper();
+#endif
     // game start splash menu
     // choose midi file
 

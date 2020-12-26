@@ -24,7 +24,7 @@ $(EXEC): $(OBJS)
 
 docs:
 	mkdir -p docs
-	em++ src/Binasc.cpp src/MidiEvent.cpp src/MidiEventList.cpp src/MidiFile.cpp src/MidiMessage.cpp src/Options.cpp audio.cpp main.cpp mon.cpp player.cpp render.cpp -o docs/index.html -I. -I./include -s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 --preload-file res --use-preload-plugins
+	em++ src/Binasc.cpp src/MidiEvent.cpp src/MidiEventList.cpp src/MidiFile.cpp src/MidiMessage.cpp src/Options.cpp src/SDL2_gfxPrimitives.cpp src/SDL2_rotozoom.cpp audio.cpp main.cpp mon.cpp player.cpp render.cpp -o docs/index.html -I. -I./include -s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 --preload-file res --use-preload-plugins
 
 clean:
 	rm -f $(EXEC) $(OBJS)
