@@ -1,0 +1,1 @@
+由于Emscripten编译到网页的SDL2代码不支持直接播放midi，我们将midi音乐转换为ogg格式。这些二进制文件较大，暂不上传到GitHub。
