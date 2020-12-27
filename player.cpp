@@ -17,8 +17,8 @@ namespace TK {
 
 // Bullet
 namespace TK {
-    Bullet::Bullet(double x, double y, double v, double phi, SDL_Texture *t)
-        : x(x), y(y), v(v), phi(phi), tex(t) {}
+    Bullet::Bullet(double x, double y, double v, double phi, int damage, SDL_Texture *t)
+        : x(x), y(y), v(v), phi(phi), damage(damage), tex(t) {}
 
     void Bullet::updatePosition() { x += v * cos(phi); y -= v * sin(phi); }
 

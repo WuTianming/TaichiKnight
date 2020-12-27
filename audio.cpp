@@ -35,12 +35,16 @@ namespace TK {
             }
         }
 
+#ifdef __EMSCRIPTEN__
+        BGM_Play = Mix_LoadWAV("res/wav/Rydeen.ogg");
+#else
         // 由于播放器有bug，需要将音频文件稍作处理再播放，不然无法同步时间
         int dummytrack = BGM.addTrack();
         BGM.addNoteOn(dummytrack, 0, 0, 1, 0);
         BGM.write(".tmp.mid");
 
         BGM_Play = Mix_LoadWAV(".tmp.mid");
+#endif
     }
 
     Uint32 callback_beat(Uint32 interval, void *param) {
@@ -90,15 +94,18 @@ namespace TK {
         Mix_PlayChannel(0, BGM_Play, 0);
     }
 
-    void countDown3SecsWrapper(const char *filename) {
+    int countDown3SecsWrapper(void *ptr) {
+        char *filename = (char *)ptr;
+        // 1450 ms
         Uint32 time0 = SDL_GetTicks() + 200;
 
         MidiInit(filename);
         MidiSetCallbacks(time0 + 200, 0);
-
         while (SDL_GetTicks() < time0 + 200) SDL_Delay(1);
+
         SDL_Delay(1250);
         MidiStart();
+        return 0;
     }
 
     // !!! 由于SDL的bug，Pause之后并不能Resume

@@ -1,9 +1,5 @@
 #define SDL_MAIN_HANDLED
 
-// TODO
-// init player & boss every time start game
-//
-
 #include <cmath>
 #include <cstdio>
 #include <vector>
@@ -66,7 +62,7 @@ void InitSDL(const char *Name, SDL_Window *&window, SDL_Renderer *&renderer) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+    // Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 }
 
 void ExitSDL() {
@@ -116,7 +112,7 @@ struct Button {
 } buttons[3];
 
 int StartMenu() {
-    bool GameLoop(void);
+    int GameLoop(void);
 
     SDL_Event event;
     int mflag = 1;
@@ -149,95 +145,101 @@ int StartMenu() {
             texid = 1 + i;
             if (isDown && mflag == 3) {
                 if (i == 0) {
-                    TK::countDown3SecsWrapper("res/midi/Rydeen.mid");
+                    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+#ifdef __EMSCRIPTEN__
+                    TK::countDown3SecsWrapper((void *)"res/midi/Rydeen.mid");
+#else
+                    SDL_Thread *pthread;
+                    pthread = SDL_CreateThread(TK::countDown3SecsWrapper, "ptr", (void *)"res/midi/Rydeen.mid");
+#endif
                     // while (GameLoop());
                     return 2;
-                    TK::MidiPause();
+                    // TK::MidiPause();
                 } else if (i == 1) {
+                    return 3;
                 } else if (i == 2) {
-                    return false;
+                    return 0;
                 }
-                return true;
             }
         }
     }
     SDL_RenderCopy(renderer, TK::mainmenu[texid], NULL, NULL);
 
     SDL_RenderPresent(renderer);
-    return true;
+    return 1;
 }
 
 void StartMenuWrapper() {
-    bool GameLoop(void);
+    int GameLoop(void);
     static int State = 1;
+    static Uint32 deathTime = 0;
     int t = false;
     switch (State) {
         case 1:
             t = StartMenu();
             if (t == 2) {
+                // game start
                 State = 2;
-            } else if (t == 1) {
-                ;
+            } else if (t == 3) {
+                // help
+                printf("help\n");
+                State = 3;
             } else if (t == 0) {
+                // quit
                 ExitSDL();
             }
             break;
         case 2:
             t = GameLoop();
-            if (!t) {
+            if (t == 0) {
+                // death
                 TK::MidiPause();
                 State = 0;
+                deathTime = SDL_GetTicks();
+            } else if (t == 1) {
+                // next frame
+            } else if (t == 2) {
+                TK::MidiPause();
+                State = 1;
             }
             break;
+        case 3:
         case 0:
+            int id = (State == 3 ? 1 : 7);
+            SDL_RenderCopy(renderer, TK::mainmenu[id], NULL, NULL);
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
                 switch (event.type) {
                     case SDL_WINDOWEVENT_CLOSE:
                     case SDL_QUIT:
                     case SDL_KEYDOWN:
-                        State = 1;
-                        return;
+                        if (SDL_GetTicks() - deathTime >= 500) {
+                            State = 1;
+                            return;
+                        }
                         break;
                 }
             }
-            SDL_RenderCopy(renderer, TK::mainmenu[7], NULL, NULL);
             SDL_RenderPresent(renderer);
             break;
     }
 }
 
-bool EndLoop() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_WINDOWEVENT_CLOSE:
-            case SDL_QUIT:
-            case SDL_KEYDOWN:
-                return false;
-                break;
-        }
-    }
-    SDL_RenderCopy(renderer, TK::mainmenu[7], NULL, NULL);
-    SDL_RenderPresent(renderer);
-    return true;
-}
-
 int fb,kb,ff=1;
 int monstern,monsters;
-int t;
+int t1, t2;
 
-bool GameLoop() {
-    // printf("(%.0lf,%.0lf)\n", player.x, player.y);
+int GameLoop() {
+    // RETURNS:
+    // 1 for continue to next frame
+    // 0 for death
+    // 2 for quit
+
     Uint32 tickNow = SDL_GetTicks();
     // countFPS();
 
     // 游戏结束？
-    if (player.hp <= 0) {
-        // while (EndLoop());
-        return false;
-    }
-    // if (EndLoop(renderer)) return true;
+    if (player.hp <= 0) { return 0; }
 
     ////////////////////////////////////////// 处理 系统事件（退出游戏） 和 用户事件（特殊操作）
     SDL_Event event;
@@ -250,7 +252,7 @@ bool GameLoop() {
             case SDL_KEYDOWN:
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     TK::MidiPause();
-                    return false;
+                    return 2;
                 }
 
                 if (event.key.keysym.sym == SDLK_SPACE && event.key.repeat == 0) {
@@ -281,7 +283,7 @@ bool GameLoop() {
                 TK::truncate(player.weapon.theta, 0, 2);
                 break;
             case SDL_USEREVENT:
-                // 激活特殊操作
+                // BEAT
                 printf("EVENT\n");
                 if (judging == -1) {
                     judging = 30 + 120;     // 15 frames ~= 1/4 second
@@ -293,29 +295,24 @@ bool GameLoop() {
 
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     // 根据键盘操作来改变角色属性
-    //state[SDL_SCANCODE_B] && 
     if(ff==1){
         ff=0;
         TK::Boss New(900,250,2.5,TK::Pi/2,IMG_LoadTexture(renderer, "res/pic/shiteater.png")); 
         boss.push_back(New);
-        boss.begin()->hp=50;
-    }//增加state[SDL_SCANCODE_M]
+        boss.begin()->hp=300;
+    }
     if(monstern<=1){
-        //printf("Yes\n");
         TK::Monster New(boss.begin()->x,boss.begin()->y,2.5,TK::Pi/2,IMG_LoadTexture(renderer, "res/pic/caixukun.png")); 
         monster.push_back(New);
-        monster.back().fm=0;
-        monster.back().km=0;
+        monster.back().fm=0; monster.back().km=0;
         monster.back().tex=IMG_LoadTexture(renderer, "res/pic/laoba.png");
         monster.back().btex=IMG_LoadTexture(renderer, "res/pic/bianbian1.png");
         monster.push_back(New);
-        monster.back().fm=0;
-        monster.back().km=0;
+        monster.back().fm=0; monster.back().km=0;
         monster.back().tex=IMG_LoadTexture(renderer, "res/pic/caixukun.png");
         monster.back().btex=player.tex[7];
         monster.push_back(New);
-        monster.back().fm=0;
-        monster.back().km=0;
+        monster.back().fm=0; monster.back().km=0;
         monster.back().btex=IMG_LoadTexture(renderer, "res/pic/basketball.png");
         monstern+=3;
     }//增加monster
@@ -333,10 +330,12 @@ bool GameLoop() {
     if (state[SDL_SCANCODE_A]) { player.phi += TK::Pi / 60; }
     if (state[SDL_SCANCODE_D]) { player.phi -= TK::Pi / 60; }
 
+    /*
     if (state[SDL_SCANCODE_LEFT])  { player.hp -= 2; }
     if (state[SDL_SCANCODE_RIGHT]) { player.hp += 2; }   // truncate!!
     if (state[SDL_SCANCODE_DOWN])  { player.mp -= 20; }
     if (state[SDL_SCANCODE_UP])    { player.mp += 20; }  // truncate!!
+    */
 
     if (player.mp >= 500) ;
     else player.mp -= 1;
@@ -352,23 +351,32 @@ bool GameLoop() {
                     player.x, player.y,
                     player.v * 1.5,
                     phi0 + phi,
+                    5,
                     player.tex[1]);
         }
         TK::setSwing(player.weapon, player.weapon.delay * (n0*2+1));
     }
     ////////////////////////////////////////// experimental
-    if (state[SDL_SCANCODE_SPACE] && state[SDL_SCANCODE_LSHIFT] ) {
+    if (state[SDL_SCANCODE_SPACE] && state[SDL_SCANCODE_LSHIFT] && player.mp >= 500) {
         for (double phi = 0.00; phi <= 2 * TK::Pi; phi += 0.02) {
             bullets.emplace_back(
                     player.x, player.y,
-                    player.v * 3,
+                    player.v * 2.5,
                     phi,
+                    1,
+                    player.tex[1]);
+            bullets.emplace_back(
+                    player.x, player.y,
+                    player.v * 2,
+                    phi + 0.01,
+                    2,
                     player.tex[1]);
         }
+        player.mp -= 500;
     }
     // printf("%d\n",monstern);
-    if ((SDL_GetTicks()-t)>=5000) {
-        t=SDL_GetTicks();
+    if ((tickNow-t1)>=5000) {
+        t1=tickNow;
         for(auto i=monster.begin();i!=monster.end();i++){
             for (double phi = 0.00; phi <= 2 * TK::Pi; phi += 1) {
                 int x=i->x;
@@ -380,12 +388,15 @@ bool GameLoop() {
                         i->btex);
             }
         }
-        for (double phi = 0.00; phi <= 2 * TK::Pi; phi += 0.2) {
+    }
+    if ((tickNow-t2) >= 7000) {
+        t2 = tickNow;
+        for (double phi = 0.00; phi <= 2 * TK::Pi; phi += 0.5) {
             int x=boss.begin()->x;
             int y=boss.begin()->y;
             mbullets.emplace_back(
                     x, y,
-                    10,
+                    1,
                     phi,
                     player.tex[7]);
         }
@@ -469,7 +480,7 @@ bool GameLoop() {
     }
 
     for (auto i = boss.begin(); i != boss.end(); i++) {
-        if((abs(player.x-(i->x))<=200)&&(abs(player.y-(i->y))<=200)){
+        if((abs(player.x-(i->x))<=50)&&(abs(player.y-(i->y))<=50)){
             int dx = player.x - (i->x), dy = (i->y) - player.y;
             double dl = sqrt(dx * dx + dy * dy);
             double phi1;
@@ -529,8 +540,8 @@ bool GameLoop() {
         for(auto j = bullets.begin(); j != bullets.end();){
             auto i = boss.begin();
             if (abs((j->x)-(i->x))<=10&&abs((j->y)-(i->y))<=10){
+                i->hp -= j->damage;
                 j = bullets.erase(j);
-                i->hp--;
                 printf("hp=%d\n",i->hp);
                 if(i->hp<=0){
                     i = boss.erase(i);
@@ -608,9 +619,9 @@ int main() {
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(StartMenuWrapper, 0, 1);
 #else
-    // while (StartMenu());
     while (1) StartMenuWrapper();
 #endif
+
     // game start splash menu
     // choose midi file
 

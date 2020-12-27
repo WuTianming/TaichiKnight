@@ -13,11 +13,12 @@ namespace TK {
     const double Pi = 3.1415926535897932384626;
 
     struct Bullet {
-        Bullet(double x = 0, double y = 0, double v = 0, double phi = 0, SDL_Texture *t = NULL);
+        Bullet(double x = 0, double y = 0, double v = 0, double phi = 0, int damage = 5, SDL_Texture *t = NULL);
 
         void updatePosition();
         bool out();
 
+        int damage;
         double x, y, v;
         double phi;
 

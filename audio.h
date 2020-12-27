@@ -14,7 +14,7 @@ namespace TK {
     // 加载背景音乐midi文件
     void MidiInit(const char *);
 
-    void countDown3SecsWrapper(const char *filename);
+    int countDown3SecsWrapper(void *ptr);
     void MidiStart();
     void MidiPause();
     void MidiResume();

@@ -57,7 +57,7 @@ namespace TK {
         void updatePosition(int k);
         bool out();
 
-        int hp=50;
+        int hp=300;
         int mp;
 
         double x, y;   

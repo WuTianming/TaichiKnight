@@ -4,6 +4,8 @@ main
 obj/
 lib/
 *.vim
+*.wav
+*.ogg
 
 # macOS specific
 .DS_Store
