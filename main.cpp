@@ -199,13 +199,25 @@ void StartMenuWrapper() {
             } else if (t == 1) {
                 // next frame
             } else if (t == 2) {
+                // pause
                 TK::MidiPause();
                 State = 1;
+            } else if (t == 3) {
+                // victory
+                TK::MidiPause();
+                State = 4;
+                deathTime = SDL_GetTicks();
             }
             break;
-        case 3:
-        case 0:
-            int id = (State == 3 ? 1 : 7);
+        case 3: // help
+        case 4: // victory
+        case 0: // death
+            int id;
+            switch (State) {
+                case 3: id = 9; break;
+                case 4: id = 8; break;
+                case 0: id = 7; break;
+            }
             SDL_RenderCopy(renderer, TK::mainmenu[id], NULL, NULL);
             SDL_Event event;
             while (SDL_PollEvent(&event)) {
@@ -234,6 +246,7 @@ int GameLoop() {
     // 1 for continue to next frame
     // 0 for death
     // 2 for quit
+    // 3 for boss die (victory)
 
     Uint32 tickNow = SDL_GetTicks();
     // countFPS();
@@ -330,12 +343,10 @@ int GameLoop() {
     if (state[SDL_SCANCODE_A]) { player.phi += TK::Pi / 60; }
     if (state[SDL_SCANCODE_D]) { player.phi -= TK::Pi / 60; }
 
-    /*
     if (state[SDL_SCANCODE_LEFT])  { player.hp -= 2; }
     if (state[SDL_SCANCODE_RIGHT]) { player.hp += 2; }   // truncate!!
     if (state[SDL_SCANCODE_DOWN])  { player.mp -= 20; }
     if (state[SDL_SCANCODE_UP])    { player.mp += 20; }  // truncate!!
-    */
 
     if (player.mp >= 500) ;
     else player.mp -= 1;
@@ -545,6 +556,7 @@ int GameLoop() {
                 printf("hp=%d\n",i->hp);
                 if(i->hp<=0){
                     i = boss.erase(i);
+                    return 3;
                     break;
                 }
             }
@@ -613,6 +625,8 @@ int main() {
     TK::mainmenu[5] = IMG_LoadTexture(renderer, "res/mm/6.png");
     TK::mainmenu[6] = IMG_LoadTexture(renderer, "res/mm/7.png");
     TK::mainmenu[7] = IMG_LoadTexture(renderer, "res/mm/8.png");
+    TK::mainmenu[8] = IMG_LoadTexture(renderer, "res/mm/9.png");
+    TK::mainmenu[9] = IMG_LoadTexture(renderer, "res/mm/10.png");
 
 
 
