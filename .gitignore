@@ -6,6 +6,7 @@ lib/
 *.vim
 *.wav
 *.ogg
+deploy.sh
 
 # macOS specific
 .DS_Store
