@@ -23,9 +23,9 @@ $(EXEC): $(OBJS)
 %.o: %.cpp
 	$(CC) -o $@ $^ $(CFLAGS) $(INCLUDE) -c
 
-docs: $(SRCS)
+docs: $(SRCS) shell.html
 	mkdir -p docs
-	em++ $(SRCS) -o docs/index.html -I. -I./include -s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 --preload-file res --use-preload-plugins -s ALLOW_MEMORY_GROWTH=1
+	em++ $(SRCS) -o docs/index.html -I. -I./include -s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 --preload-file res --use-preload-plugins -s ALLOW_MEMORY_GROWTH=1 --shell-file shell.html
 
 deploy: docs
 	./deploy.sh

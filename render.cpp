@@ -125,6 +125,16 @@ namespace TK {
             SDL_RenderCopyEx(r, p.t1,
                     NULL, &rect,
                     (TK::Pi/2 + phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
+        } else {
+            rect.h = 10;
+            SDL_SetRenderDrawColor(r, 229, 229, 229, 255);      // gray
+            SDL_RenderFillRect(r, &rect);
+            rect.w = p.hp / 300.00 * 64;
+            SDL_SetRenderDrawColor(r, 255, 0, 0, 255);          // red for hp
+            SDL_RenderFillRect(r, &rect);
+            rect.w = 64;
+            SDL_SetRenderDrawColor(r, 0, 0, 0, 255);            // black frame
+            SDL_RenderDrawRect(r, &rect);
         }
     }
 

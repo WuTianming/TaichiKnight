@@ -182,6 +182,7 @@ void StartMenuWrapper() {
     static int State = 1;
     static Uint32 deathTime = 0;
     int t = false;
+    bool Exit = false;
     switch (State) {
         case 1:
             t = StartMenu();
@@ -218,9 +219,10 @@ void StartMenuWrapper() {
                 deathTime = SDL_GetTicks();
             }
             break;
-        case 3: // help
         case 4: // victory
         case 0: // death
+            Exit = true;
+        case 3: // help
             int id;
             switch (State) {
                 case 3: id = 9; break;
@@ -236,6 +238,7 @@ void StartMenuWrapper() {
                     case SDL_KEYDOWN:
                         if (SDL_GetTicks() - deathTime >= 500) {
                             State = 1;
+                            if (Exit) ExitSDL();
                             return;
                         }
                         break;
