@@ -80,6 +80,8 @@ vector<TK::Boss> boss;
 vector<TK::Bullet> bullets;
 vector<TK::mBullet> mbullets;
 
+Mix_Chunk *phit, *mhit, *fire;
+
 int judging = -1;
 Uint32 hitTick = 0, accTick = 0;
 
@@ -112,6 +114,7 @@ struct Button {
 } buttons[3];
 
 int StartMenu() {
+    static bool audio_opened = false;
     int GameLoop(void);
 
     SDL_Event event;
@@ -142,10 +145,15 @@ int StartMenu() {
         if (buttons[i].k == DOWN) {
             texid = 4 + i;
         } else if (buttons[i].k == HOVER) {
+            if (!audio_opened) {
+                Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+                phit = Mix_LoadWAV("res/wav/phit.ogg");
+                mhit = Mix_LoadWAV("res/wav/mhit.ogg");
+                audio_opened = true;
+            }
             texid = 1 + i;
             if (isDown && mflag == 3) {
                 if (i == 0) {
-                    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 #ifdef __EMSCRIPTEN__
                     TK::countDown3SecsWrapper((void *)"res/midi/Rydeen.mid");
 #else
@@ -183,6 +191,7 @@ void StartMenuWrapper() {
             } else if (t == 3) {
                 // help
                 printf("help\n");
+                Mix_PlayChannel(-1, mhit, 5);
                 State = 3;
             } else if (t == 0) {
                 // quit
@@ -311,7 +320,7 @@ int GameLoop() {
     // 根据键盘操作来改变角色属性
     if(ff==1){
         ff=0;
-        TK::Boss New(900,250,2.5,TK::Pi/2,IMG_LoadTexture(renderer, "res/pic/shiteater.png")); 
+        TK::Boss New(900,250,2.5,TK::Pi/2,IMG_LoadTexture(renderer, "res/pic/shiteater.png"),IMG_LoadTexture(renderer, "res/pic/indic.png")); 
         boss.push_back(New);
         boss.begin()->hp=300;
     }
@@ -355,6 +364,7 @@ int GameLoop() {
     TK::truncate(player.mp, 0, 600);
 
     if (state[SDL_SCANCODE_SPACE] && !player.weapon.swing) {
+        ;
         double phi0 = player.getphi();
         int n0 = player.weapon.theta;
         for (int p = -n0; p <= n0; p++) {
@@ -385,6 +395,7 @@ int GameLoop() {
                     player.tex[1]);
         }
         player.mp -= 500;
+        player.hp += 30;
     }
     // printf("%d\n",monstern);
     if ((tickNow-t1)>=5000) {
@@ -533,19 +544,28 @@ int GameLoop() {
 
     //玩家是否被击中
     for(auto j = mbullets.begin(); j != mbullets.end();){
-        if (abs((j->x)-(player.x))<=10&&abs((j->y)-(player.y))<=10) {j = mbullets.erase(j);player.hp-=20;}
+        if (abs((j->x)-(player.x))<=10&&abs((j->y)-(player.y))<=10) {
+            j = mbullets.erase(j);player.hp-=10;
+            Mix_PlayChannel(-1, phit, 0);
+        }
         else ++j;
     }
     for(auto i=monster.begin();i!=monster.end();i++){
         for(auto j=i->bullets.begin();j!=i->bullets.end();){
-            if (abs((j->x)-(player.x))<=10&&abs((j->y)-(player.y))<=10) {j=i->bullets.erase(j);player.hp-=10;}
+            if (abs((j->x)-(player.x))<=30&&abs((j->y)-(player.y))<=30) {
+                j=i->bullets.erase(j);player.hp-=20;
+                Mix_PlayChannel(-1, phit, 0);
+            }
             else ++j;
         }
     }
-    //判断moster&boss是否被子弹击中
+    //判断monster&boss是否被子弹击中
     for(auto j = bullets.begin(); j != bullets.end(); j++){
         for (auto i = monster.begin(); i != monster.end();) {
-            if (abs((j->x)-(i->x))<=7&&abs((j->y)-(i->y))<=7) {i = monster.erase(i);monstern--;}
+            if (abs((j->x)-(i->x))<=7&&abs((j->y)-(i->y))<=7) {
+                i = monster.erase(i);monstern--;
+                Mix_PlayChannel(-1, mhit, 0);
+            }
             else ++i;
         }
     }
@@ -555,6 +575,7 @@ int GameLoop() {
             auto i = boss.begin();
             if (abs((j->x)-(i->x))<=10&&abs((j->y)-(i->y))<=10){
                 i->hp -= j->damage;
+                Mix_PlayChannel(-1, mhit, 0);
                 j = bullets.erase(j);
                 printf("hp=%d\n",i->hp);
                 if(i->hp<=0){
@@ -583,7 +604,6 @@ int GameLoop() {
             TK::drawMonsterBullet(renderer, *j);
         }
     }
-
 
     TK::drawHUD(renderer, player);
 

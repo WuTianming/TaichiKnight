@@ -113,6 +113,19 @@ namespace TK {
         SDL_Rect rect = {
             (int)(p.x - 32 - bx), (int)(p.y - 32 - by), int(64), int(64) };
         SDL_RenderCopy(r, p.tex, NULL, &rect);
+        if (p.fout()) {
+            int cx = bx + WWIDTH / 2, cy = by + WHEIGHT / 2;
+
+            int dx = p.x - cx, dy = cy - p.y;
+            double dl = sqrt(dx * dx + dy * dy);
+            double phi = acos(dx / dl);
+            if (dy >= 0) phi = -phi;
+
+            rect = { (int)(WWIDTH / 2 + 200*cos(phi)), (int)(WHEIGHT / 2 + 200*sin(phi)), 20, 20 };
+            SDL_RenderCopyEx(r, p.t1,
+                    NULL, &rect,
+                    (TK::Pi/2 + phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
+        }
     }
 
     void drawBullet(SDL_Renderer *r, Bullet &p) {

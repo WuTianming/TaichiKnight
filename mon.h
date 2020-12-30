@@ -17,7 +17,6 @@ namespace TK {
         double getghi();
 
         void updatePosition(int k);
-        bool out();
 
         int hp;
         int mp;
@@ -49,13 +48,14 @@ namespace TK {
     };
 
     struct Boss {
-        Boss(double x = 0, double y = 0, double v = 0, double phi = 0, SDL_Texture *t = NULL);
+        Boss(double x = 0, double y = 0, double v = 0, double phi = 0, SDL_Texture *t = NULL, SDL_Texture *t2 = NULL);
         //Boss();
 
         double getghi();
 
         void updatePosition(int k);
         bool out();
+        bool fout();
 
         int hp=300;
         int mp;
@@ -66,7 +66,7 @@ namespace TK {
         double phi;     
 
 
-        SDL_Texture *tex;
+        SDL_Texture *tex, *t1;
         // 属性
     };
 }

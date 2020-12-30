@@ -38,14 +38,12 @@ namespace TK {
             y -= v ;
         }
     }
-
-    bool Monster::out() { return (x < -20 || x > 20+TK::MWIDTH || y < -20 || y > 20+TK::MHEIGHT); }
 }
 
 // boss
 namespace TK {
-     Boss::Boss(double x, double y, double v, double phi, SDL_Texture *t)
-        : x(x), y(y), v(v), phi(phi), tex(t) {}
+     Boss::Boss(double x, double y, double v, double phi, SDL_Texture *t, SDL_Texture *t2)
+        : x(x), y(y), v(v), phi(phi), tex(t), t1(t2) {}
     void Boss::updatePosition(int k) {
         if(k==0){
             x += v * cos(phi); y += v * sin(phi);
@@ -80,6 +78,7 @@ namespace TK {
     }
 
     bool Boss::out() { return (x < -20 || x > 20+TK::MWIDTH || y < -20 || y > 20+TK::MHEIGHT); }
+    bool Boss::fout() { return (x - bx < 0 || x - bx > TK::WWIDTH || y - by < 0 || y - by > TK::WHEIGHT); }
 }
 
 
