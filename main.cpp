@@ -299,8 +299,9 @@ int GameLoop() {
                 // BEAT
                 printf("EVENT\n");
                 if (judging == -1) {
-                    judging = 30 + 120;     // 15 frames ~= 1/4 second
-                    accTick = SDL_GetTicks() + 1250;
+                    // judging = 30 + 120;     // 15 frames ~= 1/4 second
+                    judging = 1;
+                    accTick = tickNow + 1250;
                 }
                 break;
         }
@@ -446,11 +447,13 @@ int GameLoop() {
     // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     // SDL_RenderClear(renderer);
 
-    TK::drawPlayer(renderer, player, judging);
+    int drawR = (~judging ? accTick - tickNow : 66666);
+    TK::drawPlayer(renderer, player, drawR);
 
     if (judging != -1) {
-        judging -= 2;
-        if (judging < -40) {
+        // judging -= 2;
+        // if (judging < -40) {
+        if (drawR < -700) {
             printf("miss\n");
             player.buffs.push_back(TK::Buff{ tickNow + 3000, 6 });
             judging = -1;

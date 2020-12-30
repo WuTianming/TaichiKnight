@@ -59,6 +59,7 @@ namespace TK {
     }
 
     void drawPlayer(SDL_Renderer *r, Player &p, int drawR) {
+        // printf("drawR = %d\n", drawR);
         bx = p.x - TK::WWIDTH / 2, by = p.y - TK::WHEIGHT / 2;
         truncate(bx, 0, TK::MWIDTH - TK::WWIDTH);
         truncate(by, 0, TK::MHEIGHT - TK::WHEIGHT);
@@ -69,13 +70,14 @@ namespace TK {
                 NULL, &prect,
                 (TK::Pi/2 - p.phi) / TK::Pi * 180, NULL, SDL_FLIP_NONE);
 
-        if (drawR != -1) {
-            // drawr = judging 从 150 开始，每帧减少 2
+        if (drawR != 66666) {
+            // drawr = judging 从 150 开始，每帧减少 2 -> 1.25 sec
+            // drawr = accTick - nowTick
             double ksi;
             double radius;
             Uint32 color;
             if (drawR > 0) {
-                ksi = drawR / 150.00;
+                ksi = drawR / 1250.00;
                 radius = __animation2(1.00 - ksi, 100, -85);
                 //               AABBGGRR
                 color = 0x4f898aff
@@ -84,7 +86,7 @@ namespace TK {
                 // will overflow to create orange
                 // end color = 0xff0c8aff, orange
             } else {
-                ksi = -drawR / 40.00;
+                ksi = -drawR / 340.00;
                 radius = 15;
                 //               AABBGGRR
                 color = 0xff0c8aff
