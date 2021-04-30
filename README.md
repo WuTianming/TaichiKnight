@@ -9,7 +9,7 @@
 - `Shift` 当mp值蓄满变为金色时，按住`空格键`的同时按下`Shift`可以放大招
 
 # DEMO
-[点我进入网页版游戏DEMO](http://home.ustc.edu.cn/~wutianming)
+[点我进入网页版游戏DEMO](http://home.ustc.edu.cn/~wutianming/taichi)
 
 弹幕射击游戏。
 
